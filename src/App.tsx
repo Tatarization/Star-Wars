@@ -1,53 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import Input from '@mui/material/Input';
+import { Character } from './types/types'
 import { BasicTable } from './components/table/Table'
-import { IUser } from './types/types'
-import './App.css';
 import { Header } from './components/header/Header';
+import Pagination from '@mui/material/Pagination';
+import Input from '@mui/material/Input';
+import './App.css';
 
 function App() {
-	const [data, setData] = useState<IUser[]>([]);
-	const [page, setPage] = useState<number>(1);
-	const [searchQuery, setSearchQuery] = useState<string>('')
-	const [fetching, setFetching] = useState<boolean>(true)
-
+	const [data, setData] = useState<Character[]>([]);
+	const [totalPageCount, setTotalPageCount] = useState(1)
+	const [searchQuery, setSearchQuery] = useState('')
+	
 	const fetchData = async (page: number, search?: string) => {
-		const url = search ? `https://swapi.dev/api/people/?search=${search}` : `https://swapi.dev/api/people/?page=${page}`
+		const url = search ? `https://swapi.dev/api/people/?search=${search}&page=${page}` : `https://swapi.dev/api/people/?page=${page}`
 		const res = await fetch(url);
 		const result = await res.json();
-		search ? setData(result.results) : setData([...data, ...result.results]);
-		setFetching(false)
-		
+		setTotalPageCount(result.count);
+		setData(result.results);
 	}
-	const scrollHandler = (e: any) => {
-		console.log(e.target.documentElement.scrollHeight - e.target.documentElement.scrollTop - window.innerHeight < 50)
-			if (e.target.documentElement.scrollHeight - e.target.documentElement.scrollTop - window.innerHeight < 50) {
-				setFetching(true)
-			}
-		}
 
-	const filterSearch = (searchQuery: string) => {
+	const filterSearch = (page: number, searchQuery: string) => {
 		setSearchQuery(searchQuery)
 		fetchData(page, searchQuery)
 	}
 
 	useEffect(() => {
-		console.log(fetching)
-		if (fetching && page < 10) {
-			console.log(`fetching`)
-			fetchData(page)
-			setPage(page => page + 1)
-		}
-	}, [fetching])
-
-
-	useEffect(() => {
-		document.addEventListener('scroll', scrollHandler)
-		return function () {
-			document.removeEventListener('scroll', scrollHandler)
-		}
-	})
-
+		fetchData(1);
+	  }, []);
+	
 	return (
 		<div className="App">
 			<Header />
@@ -56,9 +36,19 @@ function App() {
 				placeholder="Search by name"
 				type="text"
 				value={searchQuery}
-				onChange={e => filterSearch(e.target.value)}
+				onChange={e => filterSearch(1, e.target.value)}
 			/>
-			<BasicTable data={data} />
+			{data.length === 0 ? <h1>Not found</h1> : <BasicTable data={data} /> }
+			
+			<Pagination 
+				count={Math.ceil(totalPageCount / 10)} 
+				color="secondary" 
+				onChange={
+					(e, page) => {
+						filterSearch(page, searchQuery)
+					}
+				}
+			/>
 		</div>
 	);
 }

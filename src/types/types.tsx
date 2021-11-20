@@ -1,4 +1,4 @@
-export interface IUser {
+export interface Character {
     name: string;
     gender: string; 
     mass: string;

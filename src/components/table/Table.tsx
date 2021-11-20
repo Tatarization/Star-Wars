@@ -6,18 +6,18 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { IUser } from "../../types/types";
+import { Character } from "../../types/types";
 import classes from './Table.module.css'
   
   interface dataProps {
-    data: IUser[];
+    data: Character[];
   }
 
   export const BasicTable: FC<dataProps>= ({data}) => {
     return (
       <div className={classes.table}>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 1000 }} aria-label="simple table">
+        <Table sx={{ minWidth: 1000 }} >
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -30,7 +30,6 @@ import classes from './Table.module.css'
             {data.map((data) => (
               <TableRow
                 key={data.name}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
                   {data.name}
